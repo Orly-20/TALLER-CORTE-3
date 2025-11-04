@@ -1,2 +1,2 @@
 # TALLER-CORTE-3
-Integrantes: 
+Integrantes: Luis miranda, Orlando Arroyo, Samuel Porto.
