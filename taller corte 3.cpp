@@ -229,3 +229,204 @@ bool guardarProductos() {
     return true;
 }
 
+// =====================================================
+// FUNCIÓN: cargarDatos() - MODIFICADA
+// Carga todos los datos desde archivos
+// =====================================================
+void cargarDatos() {
+    cout << "\n Cargando datos desde archivos...\n";
+    
+    bool usuariosOk = cargarUsuarios();
+    bool productosOk = cargarProductos();
+    bool comentariosOk = cargarComentarios();
+    
+    if (usuariosOk && productosOk && comentariosOk) {
+        cout << " Datos cargados exitosamente!\n";
+        cout << " - Usuarios: " << usuarios.size() << "\n";
+        cout << " - Productos: " << productos.size() << "\n";
+        cout << " - Comentarios: " << comentarios.size() << "\n";
+    } else {
+        cout << " ERROR: No se pudieron cargar todos los archivos.\n";
+        cout << " Asegúrese de que los archivos TXT estén en el mismo directorio.\n";
+    }
+}
+
+// =====================================================
+// FUNCIÓN: mostrarDatosCargados() 
+// =====================================================
+void mostrarDatosCargados() {
+    cout << "\n========== DATOS CARGADOS ==========\n";
+    
+    cout << "\n--- Usuarios cargados: " << usuarios.size() << " ---\n";
+    for (int i = 0; i < usuarios.size(); i++) {
+        cout << usuarios[i].idUsuario << " - " << usuarios[i].nombre 
+             << " - " << usuarios[i].correoElectronico << endl;
+    }
+
+    cout << "\n--- Productos cargados: " << productos.size() << " ---\n";
+    for (int i = 0; i < productos.size(); i++) {
+        cout << productos[i].idProducto << " - " << productos[i].nombre 
+             << " - Stock: " << productos[i].stock << endl;
+    }
+
+    cout << "\n--- Comentarios cargados: " << comentarios.size() << " ---\n";
+    for (int i = 0; i < comentarios.size(); i++) {
+        cout << comentarios[i].idComentario << " - " << comentarios[i].nombreUsuario 
+             << " comentó sobre " << comentarios[i].nombreProducto << endl;
+    }
+}
+
+// =====================================================
+// FUNCIÓN: iniciarSesion()
+// =====================================================
+int iniciarSesion(){
+    string correo, contrasena;
+    cout << "\n========== INICIAR SESIÓN =========\n";
+    cout << "Correo electrónico: ";
+    cin >> correo;
+    cout << "Contraseña: ";
+    cin >> contrasena;
+
+    for (int i = 0; i < usuarios.size(); i++) {
+        if (usuarios[i].correoElectronico == correo && usuarios[i].contrasena == contrasena) {
+            cout << "\n¡Bienvenido " << usuarios[i].nombre << "!\n";
+            return i;
+        }
+    }
+    
+    cout << "\n Usuario inválido. Correo o contraseña incorrectos.\n";
+    return -1;
+}
+
+// =====================================================
+// FUNCIÓN: listarProductosBajoStock()
+// =====================================================
+void listarProductosBajoStock() {
+    cout << "\n========== PRODUCTOS CON STOCK BAJO (<15) ==========\n";
+    
+    bool encontrado = false;
+    for (int i = 0; i < productos.size(); i++) {
+        if (productos[i].stock < 15) {
+            cout << "\nID: " << productos[i].idProducto << endl;
+            cout << "Nombre: " << productos[i].nombre << endl;
+            cout << "Descripción: " << productos[i].descripcion << endl;
+            cout << "Precio: $" << productos[i].precio << endl;
+            cout << "Stock: " << productos[i].stock << " unidades " << endl;
+            cout << "----------------------------------------\n";
+            encontrado = true;
+        }
+    }
+    
+    if (!encontrado) {
+        cout << "No hay productos con stock bajo.\n";
+    }
+}
+
+// =====================================================
+// FUNCIÓN: convertirFecha()
+// =====================================================
+int convertirFecha(string fecha) {
+    int dia, mes, anio;
+    
+    size_t pos1 = fecha.find('/');
+    size_t pos2 = fecha.find('/', pos1 + 1);
+    
+    if (pos1 == string::npos || pos2 == string::npos) {
+        pos1 = fecha.find('-');
+        pos2 = fecha.find('-', pos1 + 1);
+    }
+    
+    dia = atoi(fecha.substr(0, pos1).c_str());
+    mes = atoi(fecha.substr(pos1 + 1, pos2 - pos1 - 1).c_str());
+    anio = atoi(fecha.substr(pos2 + 1).c_str());
+    
+    return anio * 10000 + mes * 100 + dia;
+}
+
+// =====================================================
+// FUNCIÓN: listarComentariosDesdeFecha()
+// =====================================================
+void listarComentariosDesdeFecha() {
+    string fechaBusqueda;
+    
+    cout << "\n========== COMENTARIOS DESDE UNA FECHA ==========\n";
+    cout << "Ingrese la fecha (formato YYYY-MM-DD o DD/MM/YYYY): ";
+    cin >> fechaBusqueda;
+    
+    int fechaComparar = convertirFecha(fechaBusqueda);
+    bool encontrado = false;
+    
+    cout << "\nComentarios desde " << fechaBusqueda << ":\n";
+    
+    for (int i = 0; i < comentarios.size(); i++) {
+        int fechaComentario = convertirFecha(comentarios[i].fecha);
+        
+        if (fechaComentario >= fechaComparar) {
+            cout << "\n--- Comentario #" << comentarios[i].idComentario << " ---\n";
+            cout << "Usuario: " << comentarios[i].nombreUsuario << endl;
+            cout << "Producto: " << comentarios[i].nombreProducto << endl;
+            cout << "Comentario: " << comentarios[i].comentario << endl;
+            cout << "Fecha: " << comentarios[i].fecha << endl;
+            encontrado = true;
+        }
+    }
+    
+    if (!encontrado) {
+        cout << "\nNo hay comentarios desde esa fecha.\n";
+    }
+}
+
+// =====================================================
+// FUNCIÓN: convertirAMayusculas()
+// =====================================================
+string convertirAMayusculas(string texto) {
+    for (int i = 0; i < texto.length(); i++) {
+        texto[i] = toupper(texto[i]);
+    }
+    return texto;
+}
+
+// =====================================================
+// FUNCIÓN: listarUsuarios()
+// =====================================================
+void listarUsuarios() {
+    cout << "\n========== LISTA DE USUARIOS ==========\n";
+    
+    for (int i = 0; i < usuarios.size(); i++) {
+        cout << "\nID: " << usuarios[i].idUsuario << endl;
+        cout << "Nombre: " << convertirAMayusculas(usuarios[i].nombre) << endl;
+        cout << "Correo: " << usuarios[i].correoElectronico << endl;
+        cout << "Dirección: " << usuarios[i].direccion << endl;
+        cout << "Método de Pago: " << usuarios[i].metodoDePago << endl;
+        cout << "----------------------------------------\n";
+    }
+}
+
+// =====================================================
+// FUNCIÓN: obtenerUltimoIdCarrito()
+// =====================================================
+int obtenerUltimoIdCarrito() {
+    if (carritos.empty()) {
+        return 1;
+    }
+    
+    int maxId = 0;
+    for (int i = 0; i < carritos.size(); i++) {
+        if (carritos[i].idCarrito > maxId) {
+            maxId = carritos[i].idCarrito;
+        }
+    }
+    return maxId + 1;
+}
+
+// =====================================================
+// FUNCIÓN: buscarProductoPorId()
+// =====================================================
+int buscarProductoPorId(int idProducto) {
+    for (int i = 0; i < productos.size(); i++) {
+        if (productos[i].idProducto == idProducto) {
+            return i;
+        }
+    }
+    return -1;
+}
